@@ -1,4 +1,8 @@
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Seam {
 
@@ -79,6 +83,46 @@ public class Seam {
         return copy;
     }
 
+    public static BufferedImage addSeam(List<int[]> oldSeams, BufferedImage bi, int[] seam, boolean isAleterd){
+        int height = bi.getHeight();
+        int width = bi.getWidth();
+        BufferedImage copy = new BufferedImage(width + 1, height, BufferedImage.TYPE_INT_RGB);
+        for(int y = 0; y < height; y++){
+            List<Integer> offSets = new ArrayList<>();
+            for(int[] e : oldSeams){
+                offSets.add(e[y]);
+            }
+            Collections.reverse(offSets);
+            int seamPlace = inc(offSets,seam[y]);
+            for (int x = 0; x <= seamPlace; x++){
+                copy.setRGB(x,y,bi.getRGB(x,y));
+            }
+
+            //add the seam again
+            if(!isAleterd)
+                copy.setRGB(seamPlace+1,y,bi.getRGB(seamPlace,y));
+            else{
+                Color c = averageColor(seamPlace,y,bi);
+                copy.setRGB(seamPlace +1,y , c.getRGB());
+            }
+
+            for (int x = seamPlace+1; x < width; x++){
+                copy.setRGB(x+1,y,bi.getRGB(x,y));
+            }
+        }
+        return copy;
+    }
+
+    private static int inc(List<Integer> old, int curr){
+        if(old.isEmpty())
+            return curr;
+        int offset = 0;
+        for(int e : old)
+            if (curr >= e)
+                offset +=2;
+        return curr + offset;
+    }
+
     private static int minIndex(Double[] arr) {
         double min = Double.MAX_VALUE;
         int index = -1;
@@ -89,5 +133,23 @@ public class Seam {
             }
         }
         return index;
+    }
+
+    private static Color averageColor(int x, int y, BufferedImage bi){
+        int count = 0;
+        int red = 0;
+        int green = 0;
+        int blue = 0;
+        for(int i = -1; i <=1; i++){
+            try{
+                Color c = new Color(bi.getRGB(x+i,y));
+                red += c.getRed();
+                green += c.getGreen();
+                blue+= c.getBlue();
+                count++;
+            } catch (ArrayIndexOutOfBoundsException e){}
+        }
+        Color nColor = new Color(red / count, green/count, blue/count);
+        return nColor;
     }
 }
