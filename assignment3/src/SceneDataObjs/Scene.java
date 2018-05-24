@@ -22,9 +22,9 @@ public class Scene {
 	}
 	
 	public void ParseSceneSettings(String[] sceneSettings) {
-		_backgroundColor = new Color(Integer.parseInt(sceneSettings[1]), Integer.parseInt(sceneSettings[2]), Integer.parseInt(sceneSettings[3]), 0);
-		_rootNumOfShadowRays = Integer.parseInt(sceneSettings[4]);
-		_maxRecursions = Integer.parseInt(sceneSettings[5]);
-		_superSumpelingLevel = Integer.parseInt(sceneSettings[6]);
+		_backgroundColor = new Color(Float.parseFloat(sceneSettings[0]), Float.parseFloat(sceneSettings[1]), Float.parseFloat(sceneSettings[2]), 0);
+		_rootNumOfShadowRays = Integer.parseInt(sceneSettings[3]);
+		_maxRecursions = Integer.parseInt(sceneSettings[4]);
+		_superSumpelingLevel = Integer.parseInt(sceneSettings[5]);
 	}
 }

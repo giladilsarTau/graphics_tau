@@ -8,11 +8,11 @@ public class Camera {
 	public double _screenWidth;
 	
 	public Camera(String[] cameraData) {
-		_camPosition = new Point3D(Integer.parseInt(cameraData[1]), Integer.parseInt(cameraData[2]), Integer.parseInt(cameraData[3]));
-		_lookAtposition = new Point3D(Integer.parseInt(cameraData[4]), Integer.parseInt(cameraData[5]), Integer.parseInt(cameraData[6]));
-		_upVector = new Vector3D(Integer.parseInt(cameraData[7]), Integer.parseInt(cameraData[8]), Integer.parseInt(cameraData[9]));
-		_screenDistance = Double.parseDouble(cameraData[10]);
-		_screenWidth = Double.parseDouble(cameraData[11]);
+		_camPosition = new Point3D(Double.parseDouble(cameraData[0]), Double.parseDouble(cameraData[1]), Double.parseDouble(cameraData[2]));
+		_lookAtposition = new Point3D(Double.parseDouble(cameraData[3]), Double.parseDouble(cameraData[4]), Double.parseDouble(cameraData[5]));
+		_upVector = new Vector3D(Double.parseDouble(cameraData[6]), Double.parseDouble(cameraData[7]), Double.parseDouble(cameraData[8]));
+		_screenDistance = Double.parseDouble(cameraData[9]);
+		_screenWidth = Double.parseDouble(cameraData[10]);
 	}
 	
 }

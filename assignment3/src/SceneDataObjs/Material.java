@@ -11,10 +11,10 @@ public class Material {
 	public double _transparency;
 	
 	public Material(String[] materialData) {
-		_diffuseColor = new Color(Integer.parseInt(materialData[1]), Integer.parseInt(materialData[2]), Integer.parseInt(materialData[3]), 0);
-		_specularColor = new Color(Integer.parseInt(materialData[4]), Integer.parseInt(materialData[5]), Integer.parseInt(materialData[6]), 0);
-		_reflectionColor = new Color(Integer.parseInt(materialData[7]), Integer.parseInt(materialData[8]), Integer.parseInt(materialData[9]), 0);
-		_phongSpecularityCoefficient = Double.parseDouble(materialData[10]);
-		_transparency = Double.parseDouble(materialData[11]);
+		_diffuseColor = new Color(Float.parseFloat(materialData[0]), Float.parseFloat(materialData[1]), Float.parseFloat(materialData[2]), 0);
+		_specularColor = new Color(Float.parseFloat(materialData[3]), Float.parseFloat(materialData[4]), Float.parseFloat(materialData[5]), 0);
+		_reflectionColor = new Color(Float.parseFloat(materialData[6]), Float.parseFloat(materialData[7]), Float.parseFloat(materialData[8]), 0);
+		_phongSpecularityCoefficient = Double.parseDouble(materialData[9]);
+		_transparency = Double.parseDouble(materialData[10]);
 	}
 }
