@@ -9,6 +9,9 @@ public class Scene {
 	public int _rootNumOfShadowRays;
 	public int _maxRecursions;
 	public int _superSumpelingLevel;
+
+	public int widthPixels;
+	public int heightPixels;
 	
 	public Camera _cam;
 	public List<Material> _sceneMaterials;

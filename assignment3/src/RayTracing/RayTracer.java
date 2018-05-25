@@ -2,8 +2,9 @@
 package RayTracing;
 
 import SceneDataObjs.*;
+import Utils.Hit;
 
-import java.awt.Transparency;
+import java.awt.*;
 import java.awt.color.*;
 import java.awt.image.*;
 import java.io.BufferedReader;
@@ -20,17 +21,17 @@ import javax.imageio.ImageIO;
  */
 public class RayTracer {
 
-    public int imageWidth;
-    public int imageHeight;
+    public static int imageWidth;
+    public static int imageHeight;
 
-    Scene scene = new Scene();
+    static Scene scene = new Scene();
 
     /**
      * Runs the ray tracer. Takes scene file, output image file and image size as input.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
-        try {
+//        try {
 
             RayTracer tracer = new RayTracer();
 
@@ -41,7 +42,7 @@ public class RayTracer {
             //  if (args.length < 2)
             //    throw new RayTracerException("Not enough arguments provided. Please specify an input scene file and an output image file for rendering.");
 
-            String sceneFileName = args.length >= 2 ? args[0] : "scenes\\Triangle.txt";
+            String sceneFileName = args.length >= 2 ? args[0] : "scenes\\Triangle2.txt";
             String outputFileName = args.length >= 2 ? args[1] : "bla.jpg";
 
             //   if (args.length > 3) {
@@ -49,6 +50,9 @@ public class RayTracer {
             //tracer.imageHeight = Integer.parseInt(args[3]);
             //}
 
+
+            scene.heightPixels = imageHeight;
+            scene.widthPixels = imageWidth;
 
             // Parse scene file:
             tracer.parseScene(sceneFileName);
@@ -58,11 +62,11 @@ public class RayTracer {
 
 //      } catch (IOException e) {
 //          System.out.println(e.getMessage());
-        } catch (RayTracerException e) {
-            System.out.println(e.getMessage());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+//        } catch (RayTracerException e) {
+//            System.out.println(e.getMessage());
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
 
 
     }
@@ -118,7 +122,7 @@ public class RayTracer {
                     // sphere.setCenter(params[0], params[1], params[2]);
                     // sphere.setRadius(params[3]);
                     // sphere.setMaterial(params[4]);
-                    Sphere sphere = new Sphere(new Point3D(params[0], params[1], params[2]), Integer.parseInt(params[3]));
+                    Sphere sphere = new Sphere(new Point3D(params[0], params[1], params[2]), Double.parseDouble(params[3]));
                     sphere.material = Integer.parseInt(params[4]);
 
                     scene._sceneSurfaces.add(sphere);
@@ -126,7 +130,7 @@ public class RayTracer {
                 } else if (code.equals("pln")) {
                     // Add code here to parse plane parameters
 
-                    Plane plane = new Plane(new Vector3D(params[0], params[1], params[2]), Integer.parseInt(params[3]));
+                    Plane plane = new Plane(new Vector3D(params[0], params[1], params[2]), Double.parseDouble(params[3]));
                     plane.material = Integer.parseInt(params[4]);
                     scene._sceneSurfaces.add(plane);
 
@@ -134,9 +138,9 @@ public class RayTracer {
                 } else if (code.equals("trg")) {
                     // Add code here to parse plane parameters
 
-                    Vector3D v1 = new Vector3D(params[0], params[1],params[2]);
-                    Vector3D v2 = new Vector3D(params[3], params[4],params[5]);
-                    Vector3D v3 = new Vector3D(params[6], params[7],params[8]);
+                    Point3D v1 = new Point3D(params[0], params[1],params[2]);
+                    Point3D v2 = new Point3D(params[3], params[4],params[5]);
+                    Point3D v3 = new Point3D(params[6], params[7],params[8]);
 
                     Triangle triangle = new Triangle(v1,v2,v3);
                     triangle.material = Integer.parseInt(params[9]);
@@ -180,6 +184,31 @@ public class RayTracer {
         //             blue component is in rgbData[(y * this.imageWidth + x) * 3 + 2]
         //
         // Each of the red, green and blue components should be a byte, i.e. 0-255
+
+
+        for(int h = 0 ; h < imageHeight; h++){
+            for (int w = 0 ; w < imageWidth; w++){
+                Ray ray = new Ray(scene,w,h);
+                List<Hit> hits = new ArrayList<>();
+                for(ISurface surface : scene._sceneSurfaces){
+                    hits.add(new Hit(surface.rayIntersection(ray), surface));
+                }
+                Hit closest = Hit.findClosest(hits,scene);
+                Color c;
+                try {
+                    c = closest.surface.getColor(ray,scene);
+                } catch (Exception e){
+                    c = Color.BLACK;
+                }
+
+                rgbData[(h * this.imageWidth + w) * 3] = (byte)c.getRed();
+                rgbData[(h * this.imageWidth + w) * 3 + 1] = (byte)c.getGreen();
+                rgbData[(h * this.imageWidth + w) * 3 + 2] = (byte)c.getBlue();
+
+            }
+        }
+
+
 
 
         long endTime = System.currentTimeMillis();
