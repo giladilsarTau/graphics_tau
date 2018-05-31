@@ -20,6 +20,10 @@ public class Point3D {
     public Point3D minus(Point3D o){
         return new Point3D(this._x - o._x, this._y - o._y, this._z - o._z);
     }
+
+    public Point3D add(Point3D o){
+        return new Point3D(this._x + o._x, this._y + o._y, this._z + o._z);
+    }
     public Double L2Square(Point3D o){
         double x = Math.pow(this._x - o._x, 2);
         double y = Math.pow(this._y - o._y, 2);

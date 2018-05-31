@@ -15,14 +15,14 @@ public class Sphere implements ISurface {
     @Override
     public Point3D rayIntersection(Ray ray) {
         double discA = Math.pow(ray.dot(ray.startP.minus(center)),2);
-        double discB = ray.dot(ray)*(ray.startP.L2Square(center) - Math.pow(radius,2));
+        double discB = (ray.startP.L2Square(center) - Math.pow(radius,2));
         double disc = discA - discB;
         if(disc < 0)
             return null;
 
         double voc = ray.mult(-1).dot(ray.startP.minus(center));
-        double t1 = (voc + Math.sqrt(disc))/ ray.dot(ray);
-        double t2 = (voc - Math.sqrt(disc))/ ray.dot(ray);
+        double t1 = (voc + Math.sqrt(disc));
+        double t2 = (voc - Math.sqrt(disc));
 
         if(t1 < 0 && t2 < 0)
             return null;
