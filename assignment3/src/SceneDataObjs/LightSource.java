@@ -23,7 +23,9 @@ public class LightSource {
     }
 
     public Color colorFromlightSource(Hit hit, Scene scene) {
-        Ray lightRay = new Ray(_position, Vector3D.vectorFromPoints(hit.hitPoint,_position));
+        Ray lightRay = new Ray(_position, Vector3D.vectorFromPoints(hit.hitPoint, _position));
+
+        lightRay = lightRay.normalize();
 
         List<Hit> hits = new ArrayList<>();
         for (ISurface surface : scene._sceneSurfaces) {
@@ -34,7 +36,7 @@ public class LightSource {
         if (lightHit.surface.equals(hit.surface)) {
             Color t = ColorUtils.mult(lightHit.surface.getMaterial(scene)._diffuseColor, _lightColor);
             float dot = (float) lightRay.dot(lightHit.surface.getNormal(hit.hitPoint));
-            if(dot > 0.001)
+            if (dot > 0.001)
                 t = ColorUtils.mult(t, dot);
             return t;
         } else {

@@ -8,7 +8,12 @@ public class Plane implements ISurface {
     public int material;
 
     public Plane(Vector3D v, Double offset){
-        this.normal = v; this.offset = offset;
+        this.normal = v;
+        this.normal._x  *= -1;
+        this.normal._y  *= -1;
+        this.normal._z  *= -1;
+
+        this.offset = offset;
     }
 
     @Override

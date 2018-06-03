@@ -52,7 +52,6 @@ public class Vector3D {
 
     public double dot(Point3D o) {
         return (this._x * o._x) + (this._y * o._y) + (this._z * o._z);
-
     }
 
     public Vector3D cross(Vector3D o) {
