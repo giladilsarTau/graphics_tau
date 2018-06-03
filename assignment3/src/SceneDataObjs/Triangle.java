@@ -42,4 +42,17 @@ public class Triangle implements ISurface {
     public Color getColor(Ray ray, Scene scene) {
         return scene._sceneMaterials.get(material-1)._diffuseColor;
     }
+
+    @Override
+    public Material getMaterial(Scene scene) {
+        return scene._sceneMaterials.get(material-1);
+    }
+
+    @Override
+    public Vector3D getNormal(Point3D point) {
+        Vector3D edge1 = Vector3D.vectorFromPoints(_v2, _v1);
+        Vector3D edge2 = Vector3D.vectorFromPoints(_v3, _v1);
+        Vector3D h = edge1.cross(edge2);
+        return h.normalize();
+    }
 }

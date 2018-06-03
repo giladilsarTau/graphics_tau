@@ -4,6 +4,7 @@ public class Camera {
 	public Point3D _camPosition;
 	public Point3D _lookAtposition;
 	public Vector3D _upVector;
+	public Vector3D vpUp;
 	public double _screenDistance;
 	public double _screenWidth;
 	

@@ -47,11 +47,12 @@ public class Vector3D {
     }
 
     public double dot(Vector3D o) {
-        return this._x * o._x + this._y * o._y + this._z * o._z;
+        return (this._x * o._x) + (this._y * o._y) + (this._z * o._z);
     }
 
     public double dot(Point3D o) {
-        return this._x * o._x + this._y * o._y + this._z * o._z;
+        return (this._x * o._x) + (this._y * o._y) + (this._z * o._z);
+
     }
 
     public Vector3D cross(Vector3D o) {
@@ -69,6 +70,8 @@ public class Vector3D {
     public Vector3D normalize() {
         return this.mult(1 / Math.sqrt(this.dot(this)));
     }
+
+    public double getNormalValue(){ return Math.sqrt(this.dot(this)); }
 
     public static Vector3D vectorFromPoints(Point3D a, Point3D b) {
         return new Vector3D(a._x - b._x, a._y - b._y, a._z - b._z);

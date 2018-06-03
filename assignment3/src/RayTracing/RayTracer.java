@@ -2,6 +2,7 @@
 package RayTracing;
 
 import SceneDataObjs.*;
+import Utils.ColorUtils;
 import Utils.Hit;
 
 import java.awt.*;
@@ -42,7 +43,7 @@ public class RayTracer {
             //  if (args.length < 2)
             //    throw new RayTracerException("Not enough arguments provided. Please specify an input scene file and an output image file for rendering.");
 
-            String sceneFileName = args.length >= 2 ? args[0] : "scenes\\Triangle2.txt";
+            String sceneFileName = args.length >= 2 ? args[0] : "scenes\\newScenes\\Pool.txt";
             String outputFileName = args.length >= 2 ? args[1] : "bla.jpg";
 
             //   if (args.length > 3) {
@@ -193,10 +194,13 @@ public class RayTracer {
                 for(ISurface surface : scene._sceneSurfaces){
                     hits.add(new Hit(surface.rayIntersection(ray), surface));
                 }
-                Hit closest = Hit.findClosest(hits,scene);
-                Color c;
+                Hit closest = Hit.findClosest(hits,scene, scene._cam._camPosition);
+                Color c = Color.black;
                 try {
-                    c = closest.surface.getColor(ray,scene);
+                    c = closest.surface.getColor(ray,scene); //diffuse
+                    for (LightSource lightSource: scene._sceneLights) {
+                     //    c =  ColorUtils.plus(c,lightSource.colorFromlightSource(closest, scene));
+                    }
                 } catch (Exception e){
                     c = Color.BLACK;
                 }

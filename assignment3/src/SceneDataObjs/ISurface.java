@@ -8,4 +8,7 @@ public interface ISurface {
 
     Color getColor(Ray ray, Scene scene);
 
+    Material getMaterial(Scene scene);
+
+    Vector3D getNormal(Point3D point);
 }
