@@ -61,7 +61,7 @@ public class Ray extends Vector3D {
 //    }
 
 
-    public Ray(Scene scene, int xPixel, int yPixel) {
+    public Ray(Scene scene, double xPixel, double yPixel) {
 
         double pixelWidth = scene._cam._screenWidth / scene.widthPixels;
         double pixelHeight = (scene.widthPixels / scene.heightPixels) * pixelWidth;

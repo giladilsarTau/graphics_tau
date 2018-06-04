@@ -34,32 +34,32 @@ public class RayTracer {
 
 //        try {
 
-            RayTracer tracer = new RayTracer();
+        RayTracer tracer = new RayTracer();
 
-            // Default values:
-            tracer.imageWidth = 500;
-            tracer.imageHeight = 500;
+        // Default values:
+        tracer.imageWidth = 500;
+        tracer.imageHeight = 500;
 
-            //  if (args.length < 2)
-            //    throw new RayTracerException("Not enough arguments provided. Please specify an input scene file and an output image file for rendering.");
+        //  if (args.length < 2)
+        //    throw new RayTracerException("Not enough arguments provided. Please specify an input scene file and an output image file for rendering.");
 
-            String sceneFileName = args.length >= 2 ? args[0] : "scenes\\newScenes\\Pool.txt";
-            String outputFileName = args.length >= 2 ? args[1] : "bla.jpg";
+        String sceneFileName = args.length >= 2 ? args[0] : "scenes\\newScenes\\Triangle2.txt";
+        String outputFileName = args.length >= 2 ? args[1] : "bla.jpg";
 
-            //   if (args.length > 3) {
-            //     tracer.imageWidth = Integer.parseInt(args[2]);
-            //tracer.imageHeight = Integer.parseInt(args[3]);
-            //}
+        //   if (args.length > 3) {
+        //     tracer.imageWidth = Integer.parseInt(args[2]);
+        //tracer.imageHeight = Integer.parseInt(args[3]);
+        //}
 
 
-            scene.heightPixels = imageHeight;
-            scene.widthPixels = imageWidth;
+        scene.heightPixels = imageHeight;
+        scene.widthPixels = imageWidth;
 
-            // Parse scene file:
-            tracer.parseScene(sceneFileName);
+        // Parse scene file:
+        tracer.parseScene(sceneFileName);
 
-            // Render scene:
-            tracer.renderScene(outputFileName);
+        // Render scene:
+        tracer.renderScene(outputFileName);
 
 //      } catch (IOException e) {
 //          System.out.println(e.getMessage());
@@ -139,11 +139,11 @@ public class RayTracer {
                 } else if (code.equals("trg")) {
                     // Add code here to parse plane parameters
 
-                    Point3D v1 = new Point3D(params[0], params[1],params[2]);
-                    Point3D v2 = new Point3D(params[3], params[4],params[5]);
-                    Point3D v3 = new Point3D(params[6], params[7],params[8]);
+                    Point3D v1 = new Point3D(params[0], params[1], params[2]);
+                    Point3D v2 = new Point3D(params[3], params[4], params[5]);
+                    Point3D v3 = new Point3D(params[6], params[7], params[8]);
 
-                    Triangle triangle = new Triangle(v1,v2,v3);
+                    Triangle triangle = new Triangle(v1, v2, v3);
                     triangle.material = Integer.parseInt(params[9]);
                     scene._sceneSurfaces.add(triangle);
 
@@ -187,32 +187,55 @@ public class RayTracer {
         // Each of the red, green and blue components should be a byte, i.e. 0-255
 
 
-        for(int h = 0 ; h < imageHeight; h++){
-            for (int w = 0 ; w < imageWidth; w++){
-                Ray ray = new Ray(scene,w,h);
-                List<Hit> hits = new ArrayList<>();
-                for(ISurface surface : scene._sceneSurfaces){
-                    hits.add(new Hit(surface.rayIntersection(ray), surface));
-                }
-                Hit closest = Hit.findClosest(hits,scene, scene._cam._camPosition);
-                Color c = Color.black;
-                try {
-                    c = closest.surface.getColor(ray,scene); //diffuse
-                    for (LightSource lightSource: scene._sceneLights) {
-                     //    c =  ColorUtils.plus(c,lightSource.colorFromlightSource(closest, scene));
+        for (int h = 0; h < imageHeight; h++) {
+            for (int w = 0; w < imageWidth; w++) {
+                //super sampling loop
+                List<Hit> closet_hits = new ArrayList<>();
+                for (int ySS = 1; ySS <= scene._superSumpelingLevel; ySS++) {
+                    for (int xSS = 1; xSS <= scene._superSumpelingLevel; xSS++) {
+                        //cast ray. the .0 is required for enforcing doubles without rounding
+                        Ray ray = new Ray(scene, w + ((2.0 * xSS - 1) / (scene._superSumpelingLevel * 2)),
+                                h + ((2.0 * ySS - 1) / (scene._superSumpelingLevel * 2)));
+                        List<Hit> hits = new ArrayList<>();
+                        for (ISurface surface : scene._sceneSurfaces) {
+                            hits.add(new Hit(surface.rayIntersection(ray), surface));
+                        }
+
+                        closet_hits.add(Hit.findClosest(hits, scene, scene._cam._camPosition));
+
                     }
-                } catch (Exception e){
-                    c = Color.BLACK;
                 }
 
-                rgbData[(h * this.imageWidth + w) * 3] = (byte)c.getRed();
-                rgbData[(h * this.imageWidth + w) * 3 + 1] = (byte)c.getGreen();
-                rgbData[(h * this.imageWidth + w) * 3 + 2] = (byte)c.getBlue();
+                //for each hit, find color
+                List<Color> colors = new ArrayList<>();
+                for(Hit closest: closet_hits) {
+                    Color c = Color.black;
+                    if (closest == null) // hit background
+                        c = scene._backgroundColor;
+                    else {
+
+                        //color getter
+                        try {
+                            //c = closest.surface.getColor(ray, scene); //diffuse
+                            for (LightSource lightSource : scene._sceneLights) {
+                                c = ColorUtils.plus(c, lightSource.colorFromlightSource(closest, scene));
+                            }
+                        } catch (Exception e) {
+                            c = Color.BLACK;
+                        }
+
+
+                    }
+                    colors.add(c);
+                }
+
+                Color avg = ColorUtils.avgColor(colors);
+                rgbData[(h * this.imageWidth + w) * 3] = (byte) avg.getRed();
+                rgbData[(h * this.imageWidth + w) * 3 + 1] = (byte) avg.getGreen();
+                rgbData[(h * this.imageWidth + w) * 3 + 2] = (byte) avg.getBlue();
 
             }
         }
-
-
 
 
         long endTime = System.currentTimeMillis();
