@@ -46,6 +46,6 @@ public class Sphere implements ISurface {
 
     @Override
     public Vector3D getNormal(Point3D point) {
-        return Vector3D.vectorFromPoints(point,center).normalize();
+        return Vector3D.vectorFromPoints(point,center).normalize().mult(-1);
     }
 }

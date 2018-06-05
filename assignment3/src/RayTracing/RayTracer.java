@@ -198,7 +198,7 @@ public class RayTracer {
                                 h + ((2.0 * ySS - 1) / (scene._superSumpelingLevel * 2)));
                         List<Hit> hits = new ArrayList<>();
                         for (ISurface surface : scene._sceneSurfaces) {
-                            hits.add(new Hit(surface.rayIntersection(ray), surface));
+                            hits.add(new Hit(surface.rayIntersection(ray), surface, ray));
                         }
 
                         closet_hits.add(Hit.findClosest(hits, scene, scene._cam._camPosition));

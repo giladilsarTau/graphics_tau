@@ -2,6 +2,7 @@ package Utils;
 
 import SceneDataObjs.ISurface;
 import SceneDataObjs.Point3D;
+import SceneDataObjs.Ray;
 import SceneDataObjs.Scene;
 
 import java.util.List;
@@ -9,10 +10,12 @@ import java.util.List;
 public class Hit {
     public Point3D hitPoint;
     public ISurface surface;
+    public Ray origRay;
 
-    public Hit(Point3D hitPoint, ISurface surface) {
+    public Hit(Point3D hitPoint, ISurface surface, Ray ray) {
         this.hitPoint = hitPoint;
         this.surface = surface;
+        this.origRay = ray;
     }
 
     public static Hit findClosest(List<Hit> hits, Scene scene, Point3D originPoint) {
