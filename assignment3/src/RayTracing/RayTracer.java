@@ -211,8 +211,10 @@ public class RayTracer {
                 List<Color> colors = new ArrayList<>();
                 for (Hit closest : closet_hits) {
                     Color c = getColor(closest, scene); //diffuse and specular
-                    if (closest != null)
-                        c = transperecyCalc(closest, scene, c); //transparency
+                    if (closest != null) {
+                        c = transperecycalc(closest, scene, c); //transparency
+                        c = ColorUtils.plus(c,getReflectionColor(closest,scene,scene._maxRecursions));
+                    }
                     colors.add(c);
                 }
 
@@ -260,7 +262,7 @@ public class RayTracer {
     }
 
 
-    public Color transperecyCalc(Hit hit, Scene scene, Color color) {
+    public Color transperecycalc(Hit hit, Scene scene, Color color) {
         if (hit == null) // background hit
             return color;
         if (hit.surface.getMaterial(scene)._transparency == 0) {
@@ -284,7 +286,7 @@ public class RayTracer {
         Color behindColor = getColor(behind, scene);
 
         //recursive
-        behindColor = transperecyCalc(behind, scene, behindColor);
+        behindColor = transperecycalc(behind, scene, behindColor);
 
         //we got the behind, mult and recursive
         behindColor = ColorUtils.mult(behindColor, (float) hit.surface.getMaterial(scene)._transparency);
@@ -295,6 +297,44 @@ public class RayTracer {
 
         return color;
     }
+
+
+   public Color getReflectionColor(Hit hit, Scene scene, int recursion){
+        //is reflective?
+       if(hit == null)
+           return Color.BLACK;
+       Material mat = hit.surface.getMaterial(scene);
+       if(mat._reflectionColor == Color.BLACK)
+           return Color.BLACK;
+       if(recursion == 0) // we are deep enough in the reflection recursion
+           return Color.BLACK;
+       //we are reflective, first get the reflection ray
+       Vector3D N = hit.surface.getNormal(hit.hitPoint);
+       double dot = 2.0 * (hit.origRay.dot(N));
+       Vector3D Ndot = N.mult(dot);
+       Vector3D reflection = hit.origRay.minus(Ndot);
+       Ray reflectionRay  = new Ray(hit.hitPoint,reflection);
+
+       //get the color pipeline
+
+       List<Hit> hits = new ArrayList<>();
+       for (ISurface surface : scene._sceneSurfaces) {
+           if (surface != hit.surface)
+               hits.add(new Hit(surface.rayIntersection(reflectionRay), surface, reflectionRay));
+       }
+
+       Hit reflectiveHit = Hit.findClosest(hits, scene, hit.hitPoint);
+       //get color
+       Color reflectColor = getColor(reflectiveHit,scene);
+       //add transperency
+       reflectColor = transperecycalc(reflectiveHit,scene,reflectColor);
+       //recursivly add reflection color
+       reflectColor = ColorUtils.plus(reflectColor,getReflectionColor(reflectiveHit,scene,recursion-1));
+       //multiply by reflecion color
+       reflectColor = ColorUtils.mult(reflectColor,mat._reflectionColor);
+       return reflectColor;
+   }
+
 
     //////////////////////// FUNCTIONS TO SAVE IMAGES IN PNG FORMAT //////////////////////////////////////////
 
