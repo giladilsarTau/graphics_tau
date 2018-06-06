@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -43,7 +44,7 @@ public class RayTracer {
         //  if (args.length < 2)
         //    throw new RayTracerException("Not enough arguments provided. Please specify an input scene file and an output image file for rendering.");
 
-        String sceneFileName = args.length >= 2 ? args[0] : "scenes\\newScenes\\Triangle2.txt";
+        String sceneFileName = args.length >= 2 ? args[0] : "scenes\\Transparency.txt";
         String outputFileName = args.length >= 2 ? args[1] : "bla.jpg";
 
         //   if (args.length > 3) {
@@ -208,24 +209,10 @@ public class RayTracer {
 
                 //for each hit, find color
                 List<Color> colors = new ArrayList<>();
-                for(Hit closest: closet_hits) {
-                    Color c = Color.black;
-                    if (closest == null) // hit background
-                        c = scene._backgroundColor;
-                    else {
-
-                        //color getter
-                        try {
-                            //c = closest.surface.getColor(ray, scene); //diffuse
-                            for (LightSource lightSource : scene._sceneLights) {
-                                c = ColorUtils.plus(c, lightSource.colorFromlightSource(closest, scene));
-                            }
-                        } catch (Exception e) {
-                            c = Color.BLACK;
-                        }
-
-
-                    }
+                for (Hit closest : closet_hits) {
+                    Color c = getColor(closest, scene); //diffuse and specular
+                    if (closest != null)
+                        c = transperecyCalc(closest, scene, c); //transparency
                     colors.add(c);
                 }
 
@@ -252,6 +239,62 @@ public class RayTracer {
 
     }
 
+    public Color getColor(Hit closest, Scene scene) {
+        Color c = Color.black;
+        if (closest == null) // hit background
+            c = scene._backgroundColor;
+        else {
+
+            //color getter
+            try {
+                //c = closest.surface.getColor(ray, scene); //diffuse
+                for (LightSource lightSource : scene._sceneLights) {
+                    c = ColorUtils.plus(c, lightSource.colorFromlightSource(closest, scene));
+                }
+            } catch (Exception e) {
+                c = Color.BLACK;
+                System.out.println(Arrays.toString(e.getStackTrace()));
+            }
+        }
+        return c;
+    }
+
+
+    public Color transperecyCalc(Hit hit, Scene scene, Color color) {
+        if (hit == null) // background hit
+            return color;
+        if (hit.surface.getMaterial(scene)._transparency == 0) {
+            return color;
+        }
+        //object is transparent -> therefore it color multipied by  1-trans and we add color from behind
+        color = ColorUtils.mult(color, (float) (1 - hit.surface.getMaterial(scene)._transparency));
+        //shoot ray behind
+        Ray behindRay = new Ray(hit.hitPoint, hit.origRay);
+
+        List<Hit> hits = new ArrayList<>();
+        for (ISurface surface : scene._sceneSurfaces) {
+            if (surface != hit.surface)
+                hits.add(new Hit(surface.rayIntersection(behindRay), surface, behindRay));
+        }
+
+        Hit behind = Hit.findClosest(hits, scene, hit.hitPoint);
+
+
+        //colors for the behind
+        Color behindColor = getColor(behind, scene);
+
+        //recursive
+        behindColor = transperecyCalc(behind, scene, behindColor);
+
+        //we got the behind, mult and recursive
+        behindColor = ColorUtils.mult(behindColor, (float) hit.surface.getMaterial(scene)._transparency);
+
+
+        //add
+        color = ColorUtils.plus(color, behindColor);
+
+        return color;
+    }
 
     //////////////////////// FUNCTIONS TO SAVE IMAGES IN PNG FORMAT //////////////////////////////////////////
 

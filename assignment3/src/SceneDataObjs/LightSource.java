@@ -33,7 +33,8 @@ public class LightSource {
         }
         Hit lightHit = Hit.findClosest(hits, scene, _position);
 
-
+        if(lightHit == null)
+            return Color.BLACK;
         float shadowFactor = 1;
         boolean isHit = true;
         if (!lightHit.surface.equals(hit.surface)) {
@@ -71,8 +72,8 @@ public class LightSource {
         Material mat = lightHit.surface.getMaterial(scene);
         mySpec = Math.pow(mySpec, mat._phongSpecularityCoefficient);
 
-
-        return ColorUtils.mult(mat._specularColor, (float) (mySpec * this._specularIntensity));
+        Color c= ColorUtils.mult(mat._specularColor, (float) (mySpec * this._specularIntensity));
+        return c;
 
     }
 }
